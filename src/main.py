@@ -171,7 +171,7 @@ def main(args):
             plot_perm_importance(model, X_tr, y_tr, os.path.join(reports_dir, "perm_importance_test.png"), top_n=20)
         except Exception as e:
             print("[WARN] Permutation importance failed:", e)
-        print("[PLOtS] Saved plots to:", reports_dir)
+        print("[PLOTS] Saved plots to:", reports_dir)
 
     if getattr(args, "cv", False):
         print("[CV] Computing 5-fold OOF predictions…")
