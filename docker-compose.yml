@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    volumes:
+      - .:/app
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./reports:/app/reports
+    command: python -m src.main --data data/car_dataset.csv --out models/model.joblib --cv --plot
