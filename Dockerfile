@@ -10,4 +10,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 ENV PYTHONUNBUFFERED=1
-CMD ["python", "-m", "src.main", "--data", "data/cars_sample_100k.csv.gz", "--out", "models/model.joblib", "--cv", "--plots"]
+CMD ["python", "-m", "src.main", "--data", "data/cars_5m.csv.gz", "--out", "models/model.joblib", "--cv", "--plots"]

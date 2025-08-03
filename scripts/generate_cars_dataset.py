@@ -2,7 +2,7 @@
 """
 Synthetic car price dataset generator (Poland-flavored) — v2 (fixed Parquet schema init).
 Usage examples:
-  python generate_cars_dataset_v2.py --rows 5000000 --out cars_5m.csv.gz --format csv --chunksize 250000 --seed 1
+  python generate_cars_dataset.py --rows 5000000 --out cars_5m.csv.gz --format csv --chunksize 250000 --seed 1
 """
 import argparse, math, random, os, sys
 from datetime import datetime
