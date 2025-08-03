@@ -18,7 +18,7 @@ This project predicts used car prices in PLN based on tabular specifications suc
 ├── data/               # Input CSV dataset
 ├── models/             # Trained model (.joblib)
 ├── reports/            # Output plots from model evaluation
-├── src/                # Source code (main.py)
+├── src/                # Source code (main.py, pipeline.py, _helpers.py)
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
@@ -28,8 +28,8 @@ This project predicts used car prices in PLN based on tabular specifications suc
 ## 📊 Example Results
 
 ```
-[5/5] Results → MAE: 6,242 | RMSE: 9,252
-[CV] OOF → MAE: 6,278 | RMSE: 12,109
+[5/5] Results → MAE: 3,813 | RMSE: 7,633
+CV] OOF → MAE: 3,815 | RMSE: 7,839
 ```
 
 ## 🖼️ Output Visuals
