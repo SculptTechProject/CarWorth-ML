@@ -1,0 +1,29 @@
+{
+  "target": "price_pln",
+  "num_cols": [
+    "year",
+    "car_age",
+    "odometer_km",
+    "engine_displacement_l",
+    "engine_power_hp",
+    "cylinders"
+  ],
+  "cat_cols": [
+    "manufacturer",
+    "model",
+    "fuel",
+    "transmission",
+    "drivetrain",
+    "body_type",
+    "condition",
+    "city",
+    "country"
+  ],
+  "version": "0.1.0",
+  "metrics": {
+    "test": {
+      "mae": 3733.3657704780635,
+      "rmse": 7470.195916942513
+    }
+  }
+}

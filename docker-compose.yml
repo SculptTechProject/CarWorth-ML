@@ -1,9 +1,18 @@
 services:
-  app:
+  train:
     build: .
+    command: python -m src.main --data /data/cars_5m.csv.gz --out /models/carworth_hgbr_v1.joblib
     volumes:
-      - .:/app
-      - ./data:/app/data
-      - ./models:/app/models
-      - ./reports:/app/reports
-    command: python -m src.main --data data/cars_5m.csv.gz --out models/model.joblib --cv --plot
+      - ./data:/data
+      - ./models:/models
+
+  api:
+    build: .
+    command: python -m uvicorn app.main:app --host 0.0.0.0 --port 8001
+    environment:
+      - MODEL_PATH=/models/carworth_hgbr_v1.joblib
+      - MODEL_META=/models/carworth_hgbr_v1.meta.json
+    volumes:
+      - ./models:/models
+    ports: ["8001:8001"]
+

@@ -6,6 +6,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import KFold, cross_val_predict
 import joblib
+import json
+from pathlib import Path
 
 from .pipeline import build_pipeline
 from ._helpers import (
@@ -22,6 +24,19 @@ from ._helpers import (
 
 def main(args):
     """Main function to load data, train model and evaluate."""
+    # Check if output model already exists and skip training if so
+    if args.out and os.path.exists(args.out) and not getattr(args, "force", False):
+        try:
+            joblib.load(args.out)  # sanity check – czy da się wczytać
+        except Exception as e:
+            print(
+                f"[train] Existing model at {args.out} is unreadable ({e}); retraining…"
+            )
+        else:
+            print(
+                f"[train] Model exists ({args.out}) — skipping. Use --force to retrain."
+            )
+            return
     print("[1/5] Loads data from:", args.data)
     df = pd.read_csv(args.data)
     target_col = find_target_column(df)
@@ -33,6 +48,19 @@ def main(args):
     # Auto-detect numeric/categorical columns
     num_cols = X.select_dtypes(include=[np.number]).columns.tolist()
     cat_cols = [c for c in X.columns if c not in num_cols]
+
+    # Save column metadata
+    meta = {
+        "target": target_col,
+        "num_cols": num_cols,
+        "cat_cols": cat_cols,
+        "version": "0.1.0",
+    }
+    meta_path = Path(args.out).with_suffix(".meta.json")
+    meta_path.parent.mkdir(parents=True, exist_ok=True)
+    meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False))
+    print(f"[META] Saved column metadata to: {meta_path}")
+
     print(f"[3/5] Num: {len(num_cols)} | Cat: {len(cat_cols)}")
 
     model = build_pipeline(num_cols, cat_cols)
@@ -45,6 +73,15 @@ def main(args):
     mae = mean_absolute_error(y_te, pred)
     rmse = mean_squared_error(y_te, pred) ** 0.5
     print(f"[5/5] Results → MAE: {mae:,.0f} | RMSE: {rmse:,.0f}")
+    meta = {
+        "target": target_col,
+        "num_cols": num_cols,
+        "cat_cols": cat_cols,
+        "version": "0.1.0",
+        "metrics": {"test": {"mae": float(mae), "rmse": float(rmse)}},
+    }
+    meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False))
+    print(f"[META] Updated with metrics: {meta_path}")
 
     # Optional reports
     reports_dir = "reports"
@@ -125,7 +162,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--out",
-        default="models/model.joblib",
+        default="models/carworth_hgbr_v1.joblib",
         help="The save path of the trained model.",
     )
     parser.add_argument(
@@ -135,6 +172,11 @@ if __name__ == "__main__":
         "--cv",
         action="store_true",
         help="Run 5-fold cross-validation and report OOF metrics.",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Retrain even if output model already exists.",
     )
     args = parser.parse_args()
     # Run the main func with parsed arguments

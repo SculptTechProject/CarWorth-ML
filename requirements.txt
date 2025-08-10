@@ -9,3 +9,8 @@ pytest
 black
 pyarrow
 ruff
+fastapi
+pydantic
+uvicorn[standard]
+Jinja2
+python-multipart

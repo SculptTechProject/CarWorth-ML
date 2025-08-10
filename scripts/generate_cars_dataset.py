@@ -1,9 +1,9 @@
-
 """
 Synthetic car price dataset generator (Poland-flavored) — v2 (fixed Parquet schema init).
 Usage examples:
   python generate_cars_dataset.py --rows 5000000 --out cars_5m.csv.gz --format csv --chunksize 250000 --seed 1
 """
+
 import argparse
 import math
 import os
@@ -42,37 +42,105 @@ manufacturers_models = {
 }
 brands = list(manufacturers_models.keys())
 brand_weights = {
-    "Toyota": 0.09, "Volkswagen": 0.10, "Skoda": 0.09, "BMW": 0.07, "Mercedes-Benz": 0.06, "Audi": 0.07,
-    "Opel": 0.07, "Ford": 0.06, "Renault": 0.06, "Hyundai": 0.05, "Kia": 0.04, "Mazda": 0.03,
-    "Peugeot": 0.03, "Nissan": 0.03, "Seat": 0.03, "Volvo": 0.02, "Dacia": 0.02, "Fiat": 0.02,
-    "Honda": 0.02, "Lexus": 0.01, "Subaru": 0.005, "Mini": 0.005, "Porsche": 0.002, "Tesla": 0.008
+    "Toyota": 0.09,
+    "Volkswagen": 0.10,
+    "Skoda": 0.09,
+    "BMW": 0.07,
+    "Mercedes-Benz": 0.06,
+    "Audi": 0.07,
+    "Opel": 0.07,
+    "Ford": 0.06,
+    "Renault": 0.06,
+    "Hyundai": 0.05,
+    "Kia": 0.04,
+    "Mazda": 0.03,
+    "Peugeot": 0.03,
+    "Nissan": 0.03,
+    "Seat": 0.03,
+    "Volvo": 0.02,
+    "Dacia": 0.02,
+    "Fiat": 0.02,
+    "Honda": 0.02,
+    "Lexus": 0.01,
+    "Subaru": 0.005,
+    "Mini": 0.005,
+    "Porsche": 0.002,
+    "Tesla": 0.008,
 }
 brand_probs = np.array([brand_weights.get(b, 0.01) for b in brands])
 brand_probs = brand_probs / brand_probs.sum()
 
 fuel_types = ["Petrol", "Diesel", "LPG", "Hybrid", "Electric"]
-body_types = ["sedan", "hatchback", "liftback", "wagon", "suv", "coupe", "convertible", "van"]
+body_types = [
+    "sedan",
+    "hatchback",
+    "liftback",
+    "wagon",
+    "suv",
+    "coupe",
+    "convertible",
+    "van",
+]
 transmissions = ["Manual", "Automatic"]
 drivetrains = ["FWD", "RWD", "AWD"]
 conditions = ["excellent", "good", "fair", "poor"]
 cities = [
-    "Warszawa", "Kraków", "Wrocław", "Poznań", "Gdańsk", "Gdynia", "Szczecin", "Bydgoszcz", "Lublin",
-    "Białystok", "Rzeszów", "Katowice", "Łódź", "Olsztyn", "Toruń", "Kielce", "Opole", "Zielona Góra"
+    "Warszawa",
+    "Kraków",
+    "Wrocław",
+    "Poznań",
+    "Gdańsk",
+    "Gdynia",
+    "Szczecin",
+    "Bydgoszcz",
+    "Lublin",
+    "Białystok",
+    "Rzeszów",
+    "Katowice",
+    "Łódź",
+    "Olsztyn",
+    "Toruń",
+    "Kielce",
+    "Opole",
+    "Zielona Góra",
 ]
 country = "Poland"
 
 luxury_factor = {
-    "BMW": 1.40, "Mercedes-Benz": 1.45, "Audi": 1.35, "Volvo": 1.30, "Lexus": 1.50,
-    "Porsche": 2.50, "Tesla": 1.80, "Mini": 1.20, "Dacia": 0.80
+    "BMW": 1.40,
+    "Mercedes-Benz": 1.45,
+    "Audi": 1.35,
+    "Volvo": 1.30,
+    "Lexus": 1.50,
+    "Porsche": 2.50,
+    "Tesla": 1.80,
+    "Mini": 1.20,
+    "Dacia": 0.80,
 }
-body_factor = {"sedan": 1.00, "hatchback": 0.93, "liftback": 0.96, "wagon": 1.05, "suv": 1.20,
-               "coupe": 1.30, "convertible": 1.40, "van": 0.98}
-fuel_new_factor = {"Petrol": 1.00, "Diesel": 0.98, "LPG": 0.95, "Hybrid": 1.10, "Electric": 1.30}
+body_factor = {
+    "sedan": 1.00,
+    "hatchback": 0.93,
+    "liftback": 0.96,
+    "wagon": 1.05,
+    "suv": 1.20,
+    "coupe": 1.30,
+    "convertible": 1.40,
+    "van": 0.98,
+}
+fuel_new_factor = {
+    "Petrol": 1.00,
+    "Diesel": 0.98,
+    "LPG": 0.95,
+    "Hybrid": 1.10,
+    "Electric": 1.30,
+}
 condition_factor = {"excellent": 1.15, "good": 1.00, "fair": 0.85, "poor": 0.70}
+
 
 def city_multiplier(city):
     rng = (hash(city) % 7) / 100.0
     return 1.0 + rng - 0.03
+
 
 def choose_fuel(year, brand):
     if brand == "Tesla":
@@ -85,6 +153,7 @@ def choose_fuel(year, brand):
         probs = [0.52, 0.38, 0.08, 0.02, 0.00]
     return np.random.choice(fuel_types, p=probs)
 
+
 def choose_transmission(year, brand):
     base_auto = 0.35
     if year >= 2020:
@@ -94,6 +163,7 @@ def choose_transmission(year, brand):
     auto_prob = min(0.9, max(0.1, base_auto))
     return np.random.choice(["Manual", "Automatic"], p=[1 - auto_prob, auto_prob])
 
+
 def choose_drivetrain(brand, body):
     if body == "suv":
         p = [0.55, 0.05, 0.40]
@@ -102,6 +172,7 @@ def choose_drivetrain(brand, body):
     if brand in ["BMW", "Mercedes-Benz"]:
         p = [0.55, 0.30, 0.15]
     return np.random.choice(["FWD", "RWD", "AWD"], p=p)
+
 
 def sample_engine(fuel, body, brand):
     if fuel == "Electric":
@@ -138,11 +209,13 @@ def sample_engine(fuel, body, brand):
         cyl = 8
     return round(disp, 1), power, cyl
 
+
 def odometer_from_age(age):
     mean = 15000 * age
-    sd = 8000 * max(1, age/5)
+    sd = 8000 * max(1, age / 5)
     km = max(0, np.random.normal(mean, sd))
     return int(np.clip(km, 0, 450_000))
+
 
 def choose_condition(age, km):
     score = age + (km / 100_000)
@@ -156,22 +229,64 @@ def choose_condition(age, km):
         probs = [0.02, 0.40, 0.40, 0.18]
     return np.random.choice(["excellent", "good", "fair", "poor"], p=probs)
 
-def compute_price_pln(brand, body, fuel, transmission, drivetrain, power, age, km, cond, city):
-    brand_mult = {"BMW":1.40,"Mercedes-Benz":1.45,"Audi":1.35,"Volvo":1.30,"Lexus":1.50,"Porsche":2.50,"Tesla":1.80,"Mini":1.20,"Dacia":0.80}.get(brand,1.0)
-    body_mult = {"sedan":1.00,"hatchback":0.93,"liftback":0.96,"wagon":1.05,"suv":1.20,"coupe":1.30,"convertible":1.40,"van":0.98}.get(body,1.0)
-    fuel_mult = {"Petrol":1.00,"Diesel":0.98,"LPG":0.95,"Hybrid":1.10,"Electric":1.30}.get(fuel,1.0)
+
+def compute_price_pln(
+    brand, body, fuel, transmission, drivetrain, power, age, km, cond, city
+):
+    brand_mult = {
+        "BMW": 1.40,
+        "Mercedes-Benz": 1.45,
+        "Audi": 1.35,
+        "Volvo": 1.30,
+        "Lexus": 1.50,
+        "Porsche": 2.50,
+        "Tesla": 1.80,
+        "Mini": 1.20,
+        "Dacia": 0.80,
+    }.get(brand, 1.0)
+    body_mult = {
+        "sedan": 1.00,
+        "hatchback": 0.93,
+        "liftback": 0.96,
+        "wagon": 1.05,
+        "suv": 1.20,
+        "coupe": 1.30,
+        "convertible": 1.40,
+        "van": 0.98,
+    }.get(body, 1.0)
+    fuel_mult = {
+        "Petrol": 1.00,
+        "Diesel": 0.98,
+        "LPG": 0.95,
+        "Hybrid": 1.10,
+        "Electric": 1.30,
+    }.get(fuel, 1.0)
     new_price = (40_000 + 500 * power) * brand_mult * body_mult * fuel_mult
-    age_mult = 0.92 ** age
+    age_mult = 0.92**age
     km_mult = math.exp(-km / 250_000)
-    cond_mult = {"excellent":1.15,"good":1.00,"fair":0.85,"poor":0.70}[cond]
+    cond_mult = {"excellent": 1.15, "good": 1.00, "fair": 0.85, "poor": 0.70}[cond]
     trans_mult = 1.03 if transmission == "Automatic" else 1.00
-    drive_mult = 1.05 if (body == "suv" and drivetrain == "AWD") else (1.00 if drivetrain == "FWD" else 1.02)
+    drive_mult = (
+        1.05
+        if (body == "suv" and drivetrain == "AWD")
+        else (1.00 if drivetrain == "FWD" else 1.02)
+    )
     city_rng = (hash(city) % 7) / 100.0
     city_mult = 1.0 + city_rng - 0.03
     noise_mult = np.random.normal(1.0, 0.08)
-    price = new_price * age_mult * km_mult * cond_mult * trans_mult * drive_mult * city_mult * noise_mult
+    price = (
+        new_price
+        * age_mult
+        * km_mult
+        * cond_mult
+        * trans_mult
+        * drive_mult
+        * city_mult
+        * noise_mult
+    )
     price = max(1500, min(price, 1_500_000))
     return int(round(price))
+
 
 def sample_year():
     years = np.arange(1998, CURRENT_YEAR + 1)
@@ -179,30 +294,109 @@ def sample_year():
     probs = weights / weights.sum()
     return int(np.random.choice(years, p=probs))
 
+
 def sample_body(brand, model):
-    if model in ["RAV4","Tiguan","Touareg","Kodiaq","Kuga","Kadjar","Tucson","Sportage","CX-5",
-                 "Qashqai","X-Trail","Ateca","XC60","Duster","CR-V","RX","Forester","Cayenne",
-                 "Macan","Model X","Model Y"]:
+    if model in [
+        "RAV4",
+        "Tiguan",
+        "Touareg",
+        "Kodiaq",
+        "Kuga",
+        "Kadjar",
+        "Tucson",
+        "Sportage",
+        "CX-5",
+        "Qashqai",
+        "X-Trail",
+        "Ateca",
+        "XC60",
+        "Duster",
+        "CR-V",
+        "RX",
+        "Forester",
+        "Cayenne",
+        "Macan",
+        "Model X",
+        "Model Y",
+    ]:
         return "suv"
-    if model in ["Golf","Polo","Fabia","Astra","Focus","Clio","i30","i20","Ceed",
-                 "208","Leon","V40","Sandero","Punto","500","Civic","Cooper","Model 3"]:
+    if model in [
+        "Golf",
+        "Polo",
+        "Fabia",
+        "Astra",
+        "Focus",
+        "Clio",
+        "i30",
+        "i20",
+        "Ceed",
+        "208",
+        "Leon",
+        "V40",
+        "Sandero",
+        "Punto",
+        "500",
+        "Civic",
+        "Cooper",
+        "Model 3",
+    ]:
         return "hatchback"
-    if model in ["Octavia","Superb","Passat","Mondeo","Insignia","6","A4","A6",
-                 "C-Class","E-Class","5 Series","3 Series","Talisman","508","Accord","S60","ES",
-                 "Panamera","Model S"]:
+    if model in [
+        "Octavia",
+        "Superb",
+        "Passat",
+        "Mondeo",
+        "Insignia",
+        "6",
+        "A4",
+        "A6",
+        "C-Class",
+        "E-Class",
+        "5 Series",
+        "3 Series",
+        "Talisman",
+        "508",
+        "Accord",
+        "S60",
+        "ES",
+        "Panamera",
+        "Model S",
+    ]:
         return "sedan"
-    if model in ["Avensis","Camry","Auris","Megane","Elantra","Rio","Optima","408","Megane"]:
+    if model in [
+        "Avensis",
+        "Camry",
+        "Auris",
+        "Megane",
+        "Elantra",
+        "Rio",
+        "Optima",
+        "408",
+        "Megane",
+    ]:
         return np.random.choice(["sedan", "liftback"])
     if model in ["Touran"]:
         return "van"
-    if model in ["X5","X3","GLC","GLA","Q3","Q5","Countryman"]:
+    if model in ["X5", "X3", "GLC", "GLA", "Q3", "Q5", "Countryman"]:
         return "suv"
-    return np.random.choice(["sedan","hatchback","liftback","wagon","suv","coupe","convertible","van"],
-                            p=[0.18,0.33,0.05,0.12,0.20,0.05,0.02,0.05])
+    return np.random.choice(
+        [
+            "sedan",
+            "hatchback",
+            "liftback",
+            "wagon",
+            "suv",
+            "coupe",
+            "convertible",
+            "van",
+        ],
+        p=[0.18, 0.33, 0.05, 0.12, 0.20, 0.05, 0.02, 0.05],
+    )
+
 
 def generate_chunk(n, start_id, seed=None):
     if seed is not None:
-        np.random.seed(seed) 
+        np.random.seed(seed)
         random.seed(seed)
     ids = np.arange(start_id, start_id + n, dtype=np.int64)
     chosen_brands = np.random.choice(brands, size=n, p=brand_probs)
@@ -218,44 +412,61 @@ def generate_chunk(n, start_id, seed=None):
     cyls = np.empty(n, dtype=np.int8)
     for i in range(n):
         d, p, c = sample_engine(fuels[i], bodies[i], chosen_brands[i])
-        eng_disp[i] = d 
-        eng_hp[i] = p 
+        eng_disp[i] = d
+        eng_hp[i] = p
         cyls[i] = c
     odos = np.array([odometer_from_age(int(age)) for age in car_ages], dtype=np.int32)
     conds = [choose_condition(int(age), int(km)) for age, km in zip(car_ages, odos)]
     chosen_cities = np.random.choice(cities, size=n)
-    prices = np.array([
-        compute_price_pln(b, bt, fu, tr, dr, int(hp), int(age), int(km), cd, ci)
-        for b, bt, fu, tr, dr, hp, age, km, cd, ci in zip(
-            chosen_brands, bodies, fuels, transmissions_ch, drivetrains_ch, eng_hp, car_ages, odos, conds, chosen_cities
-        )
-    ], dtype=np.int32)
-    df = pd.DataFrame({
-        "id": ids,
-        "manufacturer": chosen_brands,
-        "model": models,
-        "year": years,
-        "car_age": car_ages.astype(np.int16),
-        "odometer_km": odos,
-        "fuel": fuels,
-        "transmission": transmissions_ch,
-        "drivetrain": drivetrains_ch,
-        "engine_displacement_l": np.round(eng_disp, 1),
-        "engine_power_hp": eng_hp,
-        "cylinders": cyls,
-        "body_type": bodies,
-        "condition": conds,
-        "city": chosen_cities,
-        "country": country,
-        "price_pln": prices
-    })
+    prices = np.array(
+        [
+            compute_price_pln(b, bt, fu, tr, dr, int(hp), int(age), int(km), cd, ci)
+            for b, bt, fu, tr, dr, hp, age, km, cd, ci in zip(
+                chosen_brands,
+                bodies,
+                fuels,
+                transmissions_ch,
+                drivetrains_ch,
+                eng_hp,
+                car_ages,
+                odos,
+                conds,
+                chosen_cities,
+            )
+        ],
+        dtype=np.int32,
+    )
+    df = pd.DataFrame(
+        {
+            "id": ids,
+            "manufacturer": chosen_brands,
+            "model": models,
+            "year": years,
+            "car_age": car_ages.astype(np.int16),
+            "odometer_km": odos,
+            "fuel": fuels,
+            "transmission": transmissions_ch,
+            "drivetrain": drivetrains_ch,
+            "engine_displacement_l": np.round(eng_disp, 1),
+            "engine_power_hp": eng_hp,
+            "cylinders": cyls,
+            "body_type": bodies,
+            "condition": conds,
+            "city": chosen_cities,
+            "country": country,
+            "price_pln": prices,
+        }
+    )
     return df
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--rows", type=int, required=True)
     parser.add_argument("--out", type=str, required=True)
-    parser.add_argument("--format", type=str, choices=["csv","parquet"], default="parquet")
+    parser.add_argument(
+        "--format", type=str, choices=["csv", "parquet"], default="parquet"
+    )
     parser.add_argument("--chunksize", type=int, default=500_000)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
@@ -312,12 +523,13 @@ def main():
                 mode="a" if written > 0 else "w",
                 index=False,
                 header=(written == 0),
-                compression="infer"
+                compression="infer",
             )
             written += n
             start_id += n
             print(f"Wrote {written}/{total}")
         print("Done:", args.out)
+
 
 if __name__ == "__main__":
     main()

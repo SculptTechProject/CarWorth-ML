@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CarWorth — Dashboard</title>
+    <style>
+      body {
+        font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Helvetica,
+          Arial, sans-serif;
+        margin: 24px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .card {
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+      }
+      .btn {
+        background: #111;
+        color: #fff;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 0;
+        cursor: pointer;
+      }
+      .result {
+        font-size: 22px;
+        font-weight: 700;
+      }
+      .muted {
+        color: #666;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>CarWorth — Dashboard</h1>
+    <form method="post" class="card">
+      <div class="grid">
+        <div>
+          <label
+            >Year<input
+              name="year"
+              type="number"
+              min="1980"
+              max="2050"
+              placeholder="2016"
+          /></label>
+        </div>
+        <div>
+          <label
+            >Mileage (km)<input
+              name="mileage_km"
+              type="number"
+              min="0"
+              step="1000"
+              placeholder="98000"
+          /></label>
+        </div>
+        <div>
+          <label
+            >Power (HP)<input
+              name="power_hp"
+              type="number"
+              min="20"
+              step="1"
+              placeholder="120"
+          /></label>
+        </div>
+        <div>
+          <label>Brand<input name="brand" placeholder="Volkswagen" /></label>
+        </div>
+        <div>
+          <label>Model<input name="model" placeholder="Golf" /></label>
+        </div>
+        <div>
+          <label
+            >Fuel<select name="fuel">
+              <option value="">(auto)</option>
+              <option>petrol</option>
+              <option>diesel</option>
+              <option>hybrid</option>
+              <option>electric</option>
+            </select></label
+          >
+        </div>
+        <div>
+          <label
+            >Transmission
+            <select name="transmission">
+              <option value="">(auto)</option>
+              <option value="manual">manual</option>
+              <option value="automatic">automatic</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label
+            >Drivetrain
+            <select name="drivetrain">
+              <option value="">(auto)</option>
+              <option value="fwd">fwd</option>
+              <option value="rwd">rwd</option>
+              <option value="awd">awd</option>
+              <option value="4wd">4wd</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label
+            >Body type<input name="body_type" placeholder="hatchback"
+          /></label>
+        </div>
+        <div>
+          <label
+            >Condition
+            <select name="condition">
+              <option value="">(auto)</option>
+              <option value="used">used</option>
+              <option value="new">new</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>City<input name="city" placeholder="Warszawa" /></label>
+        </div>
+        <div>
+          <label>Country<input name="country" placeholder="PL" /></label>
+        </div>
+        <div>
+          <label
+            >Engine disp. (L)<input
+              name="engine_displacement_l"
+              type="number"
+              step="0.1"
+              placeholder="1.6"
+          /></label>
+        </div>
+        <div>
+          <label
+            >Cylinders<input
+              name="cylinders"
+              type="number"
+              step="1"
+              placeholder="4"
+          /></label>
+        </div>
+      </div>
+      <div
+        style="margin-top: 16px; display: flex; gap: 12px; align-items: center"
+      >
+        <button class="btn" type="submit">Predict</button>
+        <span class="muted"
+          >MAE: {{ "%.0f"|format(mae or 0) }} PLN · RMSE: {{ "%.0f"|format(rmse
+          or 0) }} PLN</span
+        >
+      </div>
+    </form>
+
+    {% if result %}
+    <div class="card" style="margin-top: 16px">
+      <div class="result">
+        Estimated price: {{ "%.0f"|format(result.price_pln) }} PLN
+      </div>
+      <div class="muted">
+        Typical error (±MAE): {{ "%.0f"|format(result.mae) }} → Range: {{
+        "%.0f"|format(result.range_mae[0]) }} – {{
+        "%.0f"|format(result.range_mae[1]) }} PLN
+      </div>
+      <div class="muted">
+        Worse cases (±RMSE): {{ "%.0f"|format(result.rmse) }} → Range: {{
+        "%.0f"|format(result.range_rmse[0]) }} – {{
+        "%.0f"|format(result.range_rmse[1]) }} PLN
+      </div>
+
+      {% if car %}
+      <hr style="border: none; border-top: 1px solid #eee; margin: 12px 0" />
+      <div class="muted" style="margin-bottom: 8px">Vehicle details</div>
+      <div
+        class="grid"
+        style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr))"
+      >
+        {% for k, v in car.items() %}
+        <div><b>{{ k }}:</b> {{ v }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </body>
+</html>
