@@ -1,6 +1,9 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
-import os, json, joblib, pandas as pd
+import os
+import json
+import joblib
+import pandas as pd
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict
 from fastapi import Request, Form
@@ -45,6 +48,7 @@ def _get_metrics():
     rmse = float(os.getenv("METRIC_RMSE", test.get("rmse") or 0))
     return mae, rmse
 
+
 def add_derived(data: dict) -> dict:
     """Add cheap derived features if training expected them."""
     out = dict(data)
@@ -83,16 +87,17 @@ def make_frame(
         print("[api] STILL missing cols:", missing, flush=True)
     return X
 
+
 def summarize_car(payload: CarInput) -> dict[str, str]:
     """Build a small, human-readable summary of the input car."""
     d = payload.model_dump(exclude_none=True)
     engine_bits = []
     if d.get("engine_displacement_l") is not None:
-        engine_bits.append(f'{d["engine_displacement_l"]} L')
+        engine_bits.append(f"{d['engine_displacement_l']} L")
     if d.get("power_hp") is not None:
-        engine_bits.append(f'{int(d["power_hp"])} HP')
+        engine_bits.append(f"{int(d['power_hp'])} HP")
     if d.get("cylinders") is not None:
-        engine_bits.append(f'{int(d["cylinders"])} cyl')
+        engine_bits.append(f"{int(d['cylinders'])} cyl")
 
     location = ", ".join([p for p in [d.get("city"), d.get("country")] if p])
 
@@ -104,7 +109,11 @@ def summarize_car(payload: CarInput) -> dict[str, str]:
         "Transmission": d.get("transmission") or "—",
         "Drivetrain": d.get("drivetrain") or "—",
         "Body": d.get("body_type") or "—",
-        "Odometer": (f'{int(d["mileage_km"]):,} km'.replace(",", " ") if d.get("mileage_km") is not None else "—"),
+        "Odometer": (
+            f"{int(d['mileage_km']):,} km".replace(",", " ")
+            if d.get("mileage_km") is not None
+            else "—"
+        ),
         "Condition": d.get("condition") or "—",
         "Location": location or "—",
     }
@@ -151,6 +160,7 @@ def predict(payload: CarInput):
         # show which columns are expected vs. got
         detail = f"{e}; expected={len(app.state.required_cols)} cols"
         raise HTTPException(status_code=400, detail=f"Prediction failed: {detail}")
+
 
 @app.get("/dashboard")
 def dashboard_get(request: Request):
@@ -202,7 +212,8 @@ async def dashboard_post(
     price = max(0, round(y, -1))
     result = {
         "price_pln": price,
-        "mae": mae, "rmse": rmse,
+        "mae": mae,
+        "rmse": rmse,
         "range_mae": [max(0, round(price - mae)), round(price + mae)],
         "range_rmse": [max(0, round(price - rmse)), round(price + rmse)],
     }
