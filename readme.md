@@ -96,7 +96,3 @@ x = pd.DataFrame([{
 
 print(int(model.predict(x)[0]), "PLN")
 ```
-
-## 📜 License
-
-**MIT** — feel free to use, modify and share. Use dataset and explore  🙌
