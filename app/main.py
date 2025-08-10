@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict
 from fastapi import Request, Form
 from fastapi.templating import Jinja2Templates
+from typing import Any
 
 MODEL_PATH = Path(os.getenv("MODEL_PATH", "/models/carworth_hgbr_v1.joblib"))
 META_PATH = Path(
@@ -188,7 +189,7 @@ async def dashboard_post(
     engine_displacement_l: float | None = Form(None),
     cylinders: int | None = Form(None),
 ):
-    payload = {
+    payload: dict[str, Any] = {
         "year": year,
         "mileage_km": mileage_km,
         "power_hp": power_hp,
@@ -204,9 +205,13 @@ async def dashboard_post(
         "engine_displacement_l": engine_displacement_l,
         "cylinders": cylinders,
     }
-    car = summarize_car(CarInput(**payload))
 
-    X = make_frame(CarInput(**payload), app.state.required_cols, app.state.mapping)
+    ci = CarInput.model_validate(payload)
+
+    car = summarize_car(ci)
+
+    X = make_frame(ci, app.state.required_cols, app.state.mapping)
+
     y = float(app.state.model.predict(X)[0])
     mae, rmse = _get_metrics()
     price = max(0, round(y, -1))
