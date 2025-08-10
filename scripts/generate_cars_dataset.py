@@ -4,8 +4,11 @@ Synthetic car price dataset generator (Poland-flavored) — v2 (fixed Parquet sc
 Usage examples:
   python generate_cars_dataset.py --rows 5000000 --out cars_5m.csv.gz --format csv --chunksize 250000 --seed 1
 """
-import argparse, math, random, os, sys
-from datetime import datetime
+import argparse
+import math
+import os
+import random
+import sys
 import numpy as np
 import pandas as pd
 
@@ -84,7 +87,8 @@ def choose_fuel(year, brand):
 
 def choose_transmission(year, brand):
     base_auto = 0.35
-    if year >= 2020: base_auto += 0.15
+    if year >= 2020:
+        base_auto += 0.15
     if brand in ["BMW", "Mercedes-Benz", "Audi", "Volvo", "Lexus", "Porsche", "Tesla"]:
         base_auto += 0.20
     auto_prob = min(0.9, max(0.1, base_auto))
@@ -198,7 +202,8 @@ def sample_body(brand, model):
 
 def generate_chunk(n, start_id, seed=None):
     if seed is not None:
-        np.random.seed(seed); random.seed(seed)
+        np.random.seed(seed) 
+        random.seed(seed)
     ids = np.arange(start_id, start_id + n, dtype=np.int64)
     chosen_brands = np.random.choice(brands, size=n, p=brand_probs)
     models = [np.random.choice(manufacturers_models[b]) for b in chosen_brands]
@@ -213,7 +218,9 @@ def generate_chunk(n, start_id, seed=None):
     cyls = np.empty(n, dtype=np.int8)
     for i in range(n):
         d, p, c = sample_engine(fuels[i], bodies[i], chosen_brands[i])
-        eng_disp[i] = d; eng_hp[i] = p; cyls[i] = c
+        eng_disp[i] = d 
+        eng_hp[i] = p 
+        cyls[i] = c
     odos = np.array([odometer_from_age(int(age)) for age in car_ages], dtype=np.int32)
     conds = [choose_condition(int(age), int(km)) for age, km in zip(car_ages, odos)]
     chosen_cities = np.random.choice(cities, size=n)

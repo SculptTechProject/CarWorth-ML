@@ -8,3 +8,4 @@ joblib
 pytest
 black
 pyarrow
+ruff
