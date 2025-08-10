@@ -1,5 +1,11 @@
 # CarWorth-ML 🚗💸
 
+![Build](https://github.com/SculptTechProject/CarWorth-ML/actions/workflows/ci-python.yml/badge.svg?branch=main)
+[![Release](https://img.shields.io/github/v/release/SculptTechProject/CarWorth-ML)](../../releases)
+[![License](https://img.shields.io/github/license/SculptTechProject/CarWorth-ML)](./LICENSE)
+
+
+
 This project predicts used car prices in PLN based on tabular specifications such as mileage, engine, transmission, and brand. It uses scikit-learn pipelines, gradient boosting, and log-transformed regression targets for better prediction stability.
 
 ## 🧠 Features
