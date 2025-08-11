@@ -1,7 +1,7 @@
 # CarWorth-ML 🚗💸
 
 ![Build](https://github.com/SculptTechProject/CarWorth-ML/actions/workflows/ci-python.yml/badge.svg?branch=main)
-[![Release](https://img.shields.io/github/v/release/SculptTechProject/CarWorth-ML)](../../releases)
+[![License](https://img.shields.io/github/license/SculptTechProject/CarWorth-ML)](https://github.com/SculptTechProject/CarWorth-ML/blob/main/LICENSE)
 [![License](https://img.shields.io/github/license/SculptTechProject/CarWorth-ML)](./LICENSE)
 
 Predict used-car prices (PLN) from tabular specs like mileage, year, engine, transmission, drivetrain, make/model, etc.
