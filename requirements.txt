@@ -16,3 +16,4 @@ uvicorn[standard]
 Jinja2
 python-multipart
 httpx>=0.27
+python-multipart

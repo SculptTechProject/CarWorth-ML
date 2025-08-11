@@ -10,10 +10,13 @@ from fastapi import Request, Form
 from fastapi.templating import Jinja2Templates
 from typing import Any
 
-MODEL_PATH = Path(os.getenv("MODEL_PATH", "/models/carworth_hgbr_v1.joblib"))
-META_PATH = Path(
-    os.getenv("MODEL_META", str(MODEL_PATH).replace(".joblib", ".meta.json"))
-)
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+DEFAULT_MODEL = PROJECT_ROOT / "models" / "carworth_hgbr_v1.joblib"
+MODEL_PATH = Path(os.getenv("MODEL_PATH", str(DEFAULT_MODEL))).resolve()
+
+DEFAULT_META = Path(str(MODEL_PATH).replace(".joblib", ".meta.json"))
+META_PATH = Path(os.getenv("MODEL_META", str(DEFAULT_META))).resolve()
 
 
 class CarInput(BaseModel):
